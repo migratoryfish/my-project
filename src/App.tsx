@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { LawNameInfo } from './LawNameInfo';
+import { useLawNameInfo } from './useLawNameInfo';
 import logo from './logo.svg';
 import './App.css';
 
 const APP_KEY = "smart-company";
 
+
 const App = () =>  {
   const [ lawNameInfos, setLawNameInfos ] = useState([] as LawNameInfo[]);
+  const lawNames = useLawNameInfo(1, 2);
 
   useEffect(() => {
     const storeLawNameInfos = localStorage.getItem(APP_KEY);
@@ -20,15 +23,14 @@ const App = () =>  {
 
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <h1 className="text-3xl font-bold underline">
-          Hello world!
-        </h1>
-      </header>
+      {lawNames.map((value, key) =>
+          <tr key={key}>
+              <th>{value.lawId}</th>
+              <td>{value.lawNo}</td>
+              <td>{value.lawName}</td>
+              <td>{value.promulgationDate}</td>
+          </tr>
+      )}
     </div>
   );
 }
