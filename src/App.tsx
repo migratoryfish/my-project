@@ -1,8 +1,23 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { LawNameInfo } from './LawNameInfo';
 import logo from './logo.svg';
 import './App.css';
 
-function App() {
+const APP_KEY = "smart-company";
+
+const App = () =>  {
+  const [ lawNameInfos, setLawNameInfos ] = useState([] as LawNameInfo[]);
+
+  useEffect(() => {
+    const storeLawNameInfos = localStorage.getItem(APP_KEY);
+    if(storeLawNameInfos){
+      setLawNameInfos(JSON.parse(storeLawNameInfos));
+    }
+  }, []);
+  useEffect(() => {
+    localStorage.setItem(APP_KEY, JSON.stringify(lawNameInfos));
+  }, [lawNameInfos]);
+
   return (
     <div className="App">
       <header className="App-header">
@@ -10,14 +25,9 @@ function App() {
         <p>
           Edit <code>src/App.tsx</code> and save to reload.
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <h1 className="text-3xl font-bold underline">
+          Hello world!
+        </h1>
       </header>
     </div>
   );
