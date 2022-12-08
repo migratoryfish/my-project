@@ -34,6 +34,45 @@ function extractLanNames(jsonText: any): LawNameInfo[] {
     });
 }
 
+function extractLawNames(xml: Document): LawNameInfo[] {
+  const lawIDs = xml.getElementsByTagName('LawId');
+  const lawNames = xml.getElementsByTagName('LawName');
+  const lawNos = xml.getElementsByTagName('LawNo');
+  const promulgationDates = xml.getElementsByTagName('PromulgationDate');
+
+  let elementss: Element[][] = [
+    Array.from(lawIDs), 
+    Array.from(lawNames), 
+    Array.from(lawNos), 
+    Array.from(promulgationDates),
+  ];
+
+  let zipElementss = elementss[0].map((_, i) => elementss.map(elements => elements[i]));
+  const tagNames = ['lawId', 'lawName', 'lawNo', 'promulgationDate', ];
+
+  let objZipLawNameInfos: LawNameInfo[] = zipElementss.map((elements) => {
+    return elements.reduce((obj, item, index) => {
+      const key: string = tagNames[index];
+      obj[key as keyof LawNameInfo] = item.textContent ?? '';
+      return obj;
+    }, {} as LawNameInfo);
+  });
+  return objZipLawNameInfos;
+  
+  // let lawNameInfos: LawNameInfo[] = [];
+  // for(let i = 0; i < lawIDs.length; i++){
+  //   lawNameInfos.push(
+  //     {
+  //       lawId: lawIDs[i].textContent ?? '',
+  //       lawName: lawNames[i].textContent ?? '',
+  //       lawNo: lawNos[i].textContent ?? '',
+  //       promulgationDate: promulgationDates[i].textContent ?? '',
+  //     }
+  //   );
+  // }
+  // return lawNameInfos;
+}
+
 export const useLawNameInfo = (version: number, lawType: number) => {
     const [ lawNameInfos, setLawNameInfos ] = useState([] as LawNameInfo[]);
   
@@ -46,14 +85,21 @@ export const useLawNameInfo = (version: number, lawType: number) => {
           return respone.text();
         })
         .then(text => {
-          const options = { ignoreComment: true, alwaysChildren: true };
-          return convert.xml2json(text, options);
+          const domPaser = new DOMParser();
+          return domPaser.parseFromString(text,'text/xml');
+          // const options = { ignoreComment: true, alwaysChildren: true };
+          // return convert.xml2json(text, options);
         })
-        .then(json =>{
-            return extractLanNames(json);
+        // .then(json =>{
+        .then(xml =>{
+          return extractLawNames(xml);
+          // const lawName = xml.getElementsByTagName('LawName')[0].textContent;
+          // console.log(lawName);
+            // return extractLanNames(json);
         })
         .then(lawNameInfos => {
-          setLawNameInfos(lawNameInfos);
+           setLawNameInfos(lawNameInfos);
+           console.log(lawNameInfos.length);
         })
         .catch(err => {
           console.error(err);
